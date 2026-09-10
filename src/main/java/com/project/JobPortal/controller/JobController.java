@@ -14,6 +14,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import com.project.JobPortal.dto.JobRequestDTO;
+import com.project.JobPortal.dto.JobUpdateDTO;
+import com.project.JobPortal.dto.JobResponseDTO;
+
 
 import com.project.JobPortal.model.Job;
 import com.project.JobPortal.service.JobService;
@@ -29,12 +33,13 @@ public class JobController {
     }
     
     @GetMapping("/jobs")
-    public List<Job> getAllJobs() {
+    public List<JobResponseDTO> getAllJobs() {
         return jobService.getAllJobs();
     }
+    
     @GetMapping("/jobs/{id}")
-    public ResponseEntity<Job> getJobById(@PathVariable int id) {
-    	Optional<Job> job = jobService.getJobById(id);
+    public ResponseEntity<JobResponseDTO> getJobById(@PathVariable int id) {
+    	Optional<JobResponseDTO> job = jobService.getJobById(id);
 
         if (job.isPresent()) {
             return ResponseEntity.ok(job.get());
@@ -44,12 +49,16 @@ public class JobController {
     }
     
     @PostMapping("/jobs")
-    public Job addJob(@RequestBody Job job) {
-    	return jobService.addJob(job);
+    public JobResponseDTO addJob(@RequestBody JobRequestDTO jobDTO) {
+        return jobService.addJob(jobDTO);
     }
+    
+    
     @PutMapping("/jobs/{id}")
-    public ResponseEntity<Job> updateJob(@PathVariable int id, @RequestBody Job job){
-    	Optional<Job> updatedJob = jobService.updateJob(id, job);
+    public ResponseEntity<JobResponseDTO> updateJob(@PathVariable int id, @RequestBody JobUpdateDTO jobDTO){
+    	
+    	Optional<JobResponseDTO> updatedJob = jobService.updateJob(id, jobDTO);
+    	
     	if (updatedJob.isPresent()) {
     	    return ResponseEntity.ok(updatedJob.get());
     	}
