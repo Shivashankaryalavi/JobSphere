@@ -19,8 +19,10 @@ import com.project.JobPortal.dto.JobUpdateDTO;
 import com.project.JobPortal.dto.JobResponseDTO;
 
 
-import com.project.JobPortal.model.Job;
+
 import com.project.JobPortal.service.JobService;
+
+import jakarta.validation.Valid;
 
 @RestController
 public class JobController {
@@ -49,13 +51,13 @@ public class JobController {
     }
     
     @PostMapping("/jobs")
-    public JobResponseDTO addJob(@RequestBody JobRequestDTO jobDTO) {
+    public JobResponseDTO addJob(@RequestBody   @Valid  JobRequestDTO jobDTO) {
         return jobService.addJob(jobDTO);
     }
     
     
     @PutMapping("/jobs/{id}")
-    public ResponseEntity<JobResponseDTO> updateJob(@PathVariable int id, @RequestBody JobUpdateDTO jobDTO){
+    public ResponseEntity<JobResponseDTO> updateJob(@PathVariable int id, @RequestBody @Valid JobUpdateDTO jobDTO){
     	
     	Optional<JobResponseDTO> updatedJob = jobService.updateJob(id, jobDTO);
     	

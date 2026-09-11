@@ -1,9 +1,15 @@
 package com.project.JobPortal.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+
 public class JobUpdateDTO {
 	
+	@NotBlank(message="Title cannot be blank")
 	private String title;
+	@NotBlank(message="Location cannot be blank")
     private String location;
+	@Positive(message="Salary must be greater than 0")
     private double salary;
     
 	public String getTitle() {
