@@ -24,4 +24,10 @@ public class GlobalExceptionHandler {
 
 	    return ResponseEntity.badRequest().body(new ErrorResponseDTO(400, "Validation failed", errors));
 	}
+	
+	@ExceptionHandler(IllegalArgumentException.class)
+	public ResponseEntity<ErrorResponseDTO> handleIllegalArgumentException(IllegalArgumentException ex) 
+	{
+	    return ResponseEntity.badRequest().body(new ErrorResponseDTO(400, ex.getMessage(), null));
+	}
 }
