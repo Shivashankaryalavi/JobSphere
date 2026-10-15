@@ -23,6 +23,15 @@ public class JwtService {
                 .signWith(getKey())
                 .compact();
     }
+    
+    public String extractEmail(String jwt) {
+        return Jwts.parser()
+                .verifyWith(getKey())
+                .build()
+                .parseSignedClaims(jwt)
+                .getPayload()
+                .getSubject();
+    }
     private SecretKey getKey() {
 
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
