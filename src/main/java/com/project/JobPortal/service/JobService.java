@@ -3,6 +3,7 @@ package com.project.JobPortal.service;
 import org.springframework.beans.factory.annotation.Autowired;
 
 
+
 import com.project.JobPortal.dto.JobRequestDTO;
 
 
@@ -18,16 +19,23 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import com.project.JobPortal.specification.JobSpecification;
+import com.project.JobPortal.repository.UserRepository;
 
+import org.springframework.security.core.context.SecurityContextHolder;
+import com.project.JobPortal.model.User;
+import org.springframework.security.access.AccessDeniedException;
 
 @Service
 public class JobService {
 
 	private JobRepository jobRepository;
+	
+	private UserRepository userRepository;
 
 	@Autowired
-	public JobService(JobRepository jobRepository) {
+	public JobService(JobRepository jobRepository ,UserRepository userRepository) {
 	    this.jobRepository = jobRepository;
+	    this.userRepository = userRepository;
 	}
 	
 	
@@ -68,8 +76,17 @@ public class JobService {
 	
 	public JobResponseDTO addJob(JobRequestDTO jobDTO)
 	{
+		String email = SecurityContextHolder
+		        .getContext()
+		        .getAuthentication()
+		        .getName();
+		
+		User recruiter = userRepository.findByEmail(email)
+		        .orElseThrow(() -> new RuntimeException("Recruiter not found"));
+		
 		Job job = new Job();
-
+		
+		job.setRecruiter(recruiter);
 		job.setTitle(jobDTO.getTitle());
 		job.setLocation(jobDTO.getLocation());
 		job.setSalary(jobDTO.getSalary());
@@ -96,6 +113,19 @@ public class JobService {
 	    if (existingJob.isPresent()) {
 
 	        Job oldJob = existingJob.get();
+	        
+	        String email = SecurityContextHolder
+	                .getContext()
+	                .getAuthentication()
+	                .getName();
+
+	        User recruiter = userRepository.findByEmail(email)
+	                .orElseThrow(() -> new RuntimeException("Recruiter not found"));
+
+	        if (oldJob.getRecruiter() == null ||
+	            !oldJob.getRecruiter().getId().equals(recruiter.getId())) {
+	            throw new AccessDeniedException("You can update only your own jobs");
+	        }
 
 	        oldJob.setTitle(jobDTO.getTitle());
 	        oldJob.setLocation(jobDTO.getLocation());
@@ -115,11 +145,32 @@ public class JobService {
 
 	    return Optional.empty();
 	}
-	public boolean deleteJob(int id)
-	{
+	
+	public boolean deleteJob(int id) {
 
-	    if (jobRepository.existsById(id)) {
-	        jobRepository.deleteById(id);
+	    Optional<Job> existingJob = jobRepository.findById(id);
+
+	    if (existingJob.isPresent()) {
+
+	        Job job = existingJob.get();
+
+	        String email = SecurityContextHolder
+	                .getContext()
+	                .getAuthentication()
+	                .getName();
+
+	        User recruiter = userRepository.findByEmail(email)
+	                .orElseThrow(() -> new RuntimeException("Recruiter not found"));
+
+	        if (job.getRecruiter() == null ||
+	            !job.getRecruiter().getId().equals(recruiter.getId())) {
+
+	            throw new AccessDeniedException(
+	                    "You can delete only your own jobs"
+	            );
+	        }
+
+	        jobRepository.delete(job);
 	        return true;
 	    }
 

@@ -1,6 +1,7 @@
 package com.project.JobPortal.exception;
 
 import org.springframework.web.bind.annotation.ExceptionHandler;
+
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import java.util.HashMap;
@@ -8,6 +9,7 @@ import java.util.Map;
 import org.springframework.validation.FieldError;
 import com.project.JobPortal.dto.ErrorResponseDTO;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -29,5 +31,14 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<ErrorResponseDTO> handleIllegalArgumentException(IllegalArgumentException ex) 
 	{
 	    return ResponseEntity.badRequest().body(new ErrorResponseDTO(400, ex.getMessage(), null));
+	}
+	
+	@ExceptionHandler(AccessDeniedException.class)
+	public ResponseEntity<ErrorResponseDTO> handleAccessDeniedException(
+	        AccessDeniedException ex) {
+
+	    return ResponseEntity
+	            .status(403)
+	            .body(new ErrorResponseDTO(403, ex.getMessage(), null));
 	}
 }

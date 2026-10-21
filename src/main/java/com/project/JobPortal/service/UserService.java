@@ -2,6 +2,7 @@ package com.project.JobPortal.service;
 
 import java.util.Optional;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Service;
@@ -13,6 +14,7 @@ import com.project.JobPortal.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.project.JobPortal.dto.LoginRequestDTO;
 import com.project.JobPortal.security.JwtService;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @Service
 public class UserService {
@@ -41,7 +43,7 @@ public class UserService {
         user.setName(userDTO.getName());
         user.setEmail(userDTO.getEmail());
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-        user.setRole(userDTO.getRole());
+        user.setRole("CANDIDATE");
 
         User savedUser = userRepository.save(user);
 
@@ -81,6 +83,26 @@ public class UserService {
         return responseDTO;
     }
     public void deleteUser(Integer id) {
+
+        String email = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+
+        User loggedInUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (loggedInUser.getRole().equals("ADMIN")) {
+            userRepository.deleteById(id);
+            return;
+        }
+
+        if (!loggedInUser.getId().equals(id)) {
+            throw new org.springframework.security.access.AccessDeniedException(
+                    "You can delete only your own account"
+            );
+        }
+
         userRepository.deleteById(id);
     }
 }

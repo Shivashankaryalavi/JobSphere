@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 
 @Entity
 public class Job {
@@ -15,6 +16,15 @@ public class Job {
 	private String location;
 	private double salary;
 	
+	@ManyToOne
+	private User recruiter;
+	
+	public User getRecruiter() {
+		return recruiter;
+	}
+	public void setRecruiter(User recruiter) {
+		this.recruiter = recruiter;
+	}
 	public Job(Integer id,String title,String location,double salary) {
 		this.id=id;
 		this.title=title;
