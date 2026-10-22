@@ -24,7 +24,24 @@ public class SecurityConfig {
     {
 
     http
-        .csrf(csrf -> csrf.disable())
+    .csrf(csrf -> csrf.disable())
+    .cors(cors -> cors.configurationSource(request -> {
+        var corsConfig = new org.springframework.web.cors.CorsConfiguration();
+
+        corsConfig.setAllowedOrigins(
+            java.util.List.of("http://localhost:5173")
+        );
+
+        corsConfig.setAllowedMethods(
+            java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")
+        );
+
+        corsConfig.setAllowedHeaders(
+            java.util.List.of("Authorization", "Content-Type")
+        );
+
+        return corsConfig;
+    }))
         .authorizeHttpRequests(auth -> auth
         		.dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
         	    .requestMatchers("/login", "/users").permitAll()
@@ -39,6 +56,10 @@ public class SecurityConfig {
         	    	.requestMatchers(
         	    	    org.springframework.http.HttpMethod.DELETE, "/jobs/**"
         	    	).hasAuthority("RECRUITER")
+        	    	
+        	    	.requestMatchers(
+        	    		    org.springframework.http.HttpMethod.DELETE, "/users/**"
+        	    		).authenticated()
         	    	
         	    .anyRequest().authenticated()
         	)
