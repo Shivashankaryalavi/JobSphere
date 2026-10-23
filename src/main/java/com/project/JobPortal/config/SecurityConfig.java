@@ -44,7 +44,7 @@ public class SecurityConfig {
     }))
         .authorizeHttpRequests(auth -> auth
         		.dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
-        	    .requestMatchers("/login", "/users").permitAll()
+        		.requestMatchers("/login", "/users", "/jobs").permitAll()
         	    .requestMatchers(
         	        org.springframework.http.HttpMethod.POST, "/jobs"
         	    ).hasAuthority("RECRUITER")
